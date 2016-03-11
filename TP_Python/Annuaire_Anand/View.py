@@ -5,6 +5,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from Control import Control
 from WidgetContact import WidgetContact
 import sys
 
@@ -16,11 +17,13 @@ TAILLE_BARRE_RECHERCHE=300
 
 class View(QMainWindow):
 	""" Cette class est la fenetre principale de l'annuaire"""
-	def __init__(self):
+	def __init__(self,control):
 		QMainWindow.__init__(self)
+		self.control = control
+		self.control.setView(self)
 		self.setWindowTitle("Annuaire")
 		self.setAttribute(Qt.WA_TranslucentBackground)
-		self.setStyleSheet("background-color:rgba(200,200,200,125)")
+		self.setStyleSheet("background:transparent;background-color:rgba(200,200,200,125)")
 		self.setGeometry(0,0,TAILLE_FENETRE_DEMARRAGE_X,TAILLE_FENETRE_DEMARRAGE_Y)
 		self.creerWidget()
 		self.connecterWidget()

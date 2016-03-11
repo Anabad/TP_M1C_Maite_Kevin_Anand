@@ -5,11 +5,13 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from Control import Control
 import sys
 
 class WidgetContact(QGroupBox):
 	""" Cette class sera la class qui fera l'affichage d'un contact"""
-	def __init__(self,parent):
+	def __init__(self,parent,control):
+		self.control = control
 		QGroupBox.__init__(self,parent)
 		self.Edit = False
 		self.creerWidgets()
@@ -92,7 +94,13 @@ class WidgetContact(QGroupBox):
 		self.adresseLineEdit.hide()
 		self.typeLineEdit.hide()
 		
-		self.modifierValeurLabel()
+		self.sauvegarderModification()
+	def sauvegarderModification(self):
+		dictionnaire = {}
+		dictionnaire["nom"] = self.nomLineEdit.Text()
+		dictionnaire["prenom"] = self.nomLineEdit.Text()
+		self.control.controlerEnvoyer(dictionnaire)
+		modifierValeurLabel()
 	def modifierValeurLabel(self):
 		pass
 	def modifierValeurLineEdit(self):
