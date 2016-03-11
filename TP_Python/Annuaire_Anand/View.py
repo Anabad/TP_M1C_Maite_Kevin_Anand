@@ -8,11 +8,20 @@ from PyQt4.QtCore import *
 from WidgetContact import WidgetContact
 import sys
 
+
+TAILLE_FENETRE_DEMARRAGE_X=800
+TAILLE_FENETRE_DEMARRAGE_Y=400
+TAILLE_BOUTON=35
+TAILLE_BARRE_RECHERCHE=300
+
 class View(QMainWindow):
-""" Cette class est la fenetre principale de l'annuaire"""
+	""" Cette class est la fenetre principale de l'annuaire"""
 	def __init__(self):
 		QMainWindow.__init__(self)
 		self.setWindowTitle("Annuaire")
+		self.setAttribute(Qt.WA_TranslucentBackground)
+		self.setStyleSheet("background-color:rgba(200,200,200,125)")
+		self.setGeometry(0,0,TAILLE_FENETRE_DEMARRAGE_X,TAILLE_FENETRE_DEMARRAGE_Y)
 		self.creerWidget()
 		self.connecterWidget()
 
@@ -20,64 +29,68 @@ class View(QMainWindow):
 		""" Cette fonction va définir tous les boutons ainsi que les espaces conteneur de la fenetre """
 		# Définition des conteneurs principaux de la fenetre
 		self.conteneur = QWidget(self)
-		self.layoutConteneur = QGridLayout()
-		self.layoutConteneur.setSpacing(0)
-		self.layoutConteneur.setMargin(0)
+		self.conteneur.setGeometry(0,0,self.size().width(),self.size().height())
+		self.conteneur.setMinimumWidth(4*TAILLE_BOUTON+TAILLE_BARRE_RECHERCHE)
 		self.setCentralWidget(self.conteneur)
 		
 		# Définition des deux gros widget de la fenetre
-		self.barHaut = QWidget(self)
-		self.barHaut.setStyleSheet("background:url(IMAGES/texture.jpg);border-bottom:3px groove black")
+		self.barHaut = QWidget(self.conteneur)
+		self.dessousFenetre =QWidget(self.conteneur)
+		self.barHaut.setGeometry(0,0,self.conteneur.size().width(),75)
+		self.barHaut.setFixedHeight(75)
+		self.dessousFenetre.setGeometry(0,75,TAILLE_FENETRE_DEMARRAGE_X,TAILLE_FENETRE_DEMARRAGE_Y-75)
 		
-		self.dessousBar =QWidget(self)
-		
-		self.layoutConteneur.addWidget(self.barHaut,0,0,1,1)
-		self.layoutConteneur.addWidget(self.dessousBar,1,0,6,1)
-		self.conteneur.setLayout(self.layoutConteneur)
 		
 		# Définition des widgets dans la bar du haut
-		self.layoutBar = QHBoxLayout()
-		
-		self.quoiWidget = QLineEdit(self.barHaut)
-		self.quoiWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		
-		self.ouWidget = QLineEdit(self.barHaut)
-		self.ouWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		
-		self.bouttonValideRecherche = QPushButton(self.barHaut)
-		self.bouttonValideRecherche.setIcon(QIcon(QPixmap("IMAGES/loupe.png")));
-		self.bouttonValideRecherche.setStyleSheet("background:rgb(255,255,0);border-bottom:none")
-		
-		self.layoutBar.addWidget(self.quoiWidget)
-		self.layoutBar.addWidget(self.ouWidget)
-		self.layoutBar.addWidget(self.bouttonValideRecherche)
-		self.barHaut.setLayout(self.layoutBar)
-		
+		self.creerBarHautWidget()
 		# Définition des widgets dans la partie inférieur de l'écran
-		self.layoutDessousBar = QGridLayout()
+		self.creerDessousFenetre()
+	def creerBarHautWidget(self):
+		""" Cette fonction défini la bar du haut """
+		self.nouveauContactWidget = QPushButton(self.barHaut)
+		self.rechercheWidget = QLineEdit(self.barHaut)
+		self.bouttonValideRecherche = QPushButton(self.barHaut)
 		
-		self.barGauche = QWidget(self.dessousBar)
-		self.zoneAddMod = WidgetContact(self.dessousBar)
+		self.nouveauContactWidget.setFlat(True)
+		self.nouveauContactWidget.setFixedSize(TAILLE_BOUTON,TAILLE_BOUTON)
+		self.rechercheWidget.setFixedSize(TAILLE_BARRE_RECHERCHE,TAILLE_BOUTON-1)
+		self.bouttonValideRecherche.setFixedSize(TAILLE_BOUTON,TAILLE_BOUTON)
+		self.bouttonValideRecherche.setFlat(True)
+		self.nouveauContactWidget.move((self.barHaut.size().height()-TAILLE_BOUTON) / 2,(self.barHaut.size().height()-TAILLE_BOUTON) / 2)
+		self.rechercheWidget.move(self.size().width() - self.rechercheWidget.size().width() - TAILLE_BOUTON - TAILLE_BOUTON,15)
+		self.bouttonValideRecherche.move(self.size().width() - TAILLE_BOUTON - TAILLE_BOUTON/2,(self.barHaut.size().height()-TAILLE_BOUTON) / 2)
 		
-		self.layoutDessousBar.addWidget(self.barGauche,0,0,1,1)
-		self.layoutDessousBar.addWidget(self.zoneAddMod,0,1,1,5)
-		#self.zoneAddMod.hide()
+		self.nouveauContactWidget.setIcon(QIcon(QPixmap("IMAGES/ajouterIcone.jpg")));
+		self.nouveauContactWidget.setIconSize(QSize(TAILLE_BOUTON-2,TAILLE_BOUTON-2))
+		self.nouveauContactWidget.setStyleSheet("background:rgb(255,255,255);border-bottom:none;outline: none;")
+		self.rechercheWidget.setStyleSheet("background-color:rgb(255,255,255)")
+		self.bouttonValideRecherche.setIcon(QIcon(QPixmap("IMAGES/loupe.png")));
+		self.bouttonValideRecherche.setIconSize(QSize(TAILLE_BOUTON-2,TAILLE_BOUTON-2))
+		self.bouttonValideRecherche.setStyleSheet("border-bottom:none;outline: none;")
+	def creerDessousFenetre(self):
+		# Définition de la partie de gauche du dessous de la fenetre
+		self.tab = QTabWidget(self.dessousFenetre)
+		self.AtoZ = QWidget()
+		self.Groupe = QWidget()
+		self.tab.addTab(self.AtoZ,"&A-Z")
+		self.tab.addTab(self.Groupe,"&Groupe")
+		self.zoneAddMod = WidgetContact(self.dessousFenetre)
+		self.tab.setGeometry(QRect(15, 15, (self.size().width())*35/100-30,self.dessousFenetre.size().height()-30))
+		self.zoneAddMod.setGeometry(QRect(37+ (self.size().width())*35/100-30, 15, (self.size().width())*60/100,self.dessousFenetre.size().height()-30))
 		
-		self.dessousBar.setLayout(self.layoutDessousBar)
-		
-		# Définition des widgets dans la barre de gauche
-		self.layoutBarGauche = QVBoxLayout()
-		
-		self.boutonAjouter = QPushButton("Ajouter",self.barGauche)
-		self.zoneAffichage = QScrollArea()
-		self.layoutBarGauche.addWidget(self.boutonAjouter)
-		self.layoutBarGauche.addWidget(self.zoneAffichage)
-		self.barGauche.setLayout(self.layoutBarGauche)
-		
+		self.zoneAddMod.setStyleSheet("WidgetContact{border:1px solid white;background-color:rgba(200,200,200,220)}")
 	def connecterWidget(self):
-		self.connect(self.boutonAjouter, SIGNAL("clicked()"),self.SLOT_Ajouter)
+		pass
 			
 	def SLOT_Ajouter(self):
 		pass
 		#self.zoneAddMod.show()
+	def resizeEvent(self, evt=None):
+		self.barHaut.resize(self.conteneur.size().width(),self.barHaut.size().height())
+		self.rechercheWidget.move(self.size().width()- self.rechercheWidget.size().width() - TAILLE_BOUTON - TAILLE_BOUTON,(self.barHaut.size().height()-TAILLE_BOUTON) / 2)
+		self.bouttonValideRecherche.move(self.size().width() - TAILLE_BOUTON - TAILLE_BOUTON/2,(self.barHaut.size().height()-TAILLE_BOUTON) / 2)
+		self.dessousFenetre.setGeometry(0,75,self.size().width(), self.size().height()-self.barHaut.size().height())
+		self.tab.setGeometry(QRect(15, 15, (self.size().width())*35/100-30,self.dessousFenetre.size().height()-30))
+		self.zoneAddMod.setGeometry(QRect(37+ (self.size().width())*35/100-30, 15, (self.size().width())*60/100,self.dessousFenetre.size().height()-30))
+		
 
