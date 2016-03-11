@@ -12,7 +12,7 @@ import sys
 
 
 def main(args) :
-"""Fonction principal qui va nous lancer notre annuaire"""
+	"""Fonction principal qui va nous lancer notre annuaire"""
 	#bdd = sqlite3.connect('Bdd/patron.db')
 	
 	app=QApplication(args)
