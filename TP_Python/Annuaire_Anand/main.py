@@ -9,18 +9,22 @@ from View import View
 
 import sqlite3
 import sys
+import os
 
 
 def main(args) :
-	"""Fonction principal qui va nous lancer notre annuaire"""
+	"""Fonction principal qui va nous lancer notre annuaire"""	
 	#bdd = sqlite3.connect('Bdd/patron.db')
 	
 	app=QApplication(args)
-	fenetre = View();
-	fenetre.showMaximized();
+	control = Control()
+	model = Model(control)
+	fenetre = View(control);
+	fenetre.show();
 	
 	#bdd.close()
 	return app.exec_()
 
 if __name__ == "__main__" :
-   main(sys.argv)
+	os.system('clear')
+	main(sys.argv)
