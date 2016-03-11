@@ -9,7 +9,7 @@ from WidgetContact import WidgetContact
 import sys
 
 class View(QMainWindow):
-	""" Cette class est la fenetre principale de l'annuaire"""
+""" Cette class est la fenetre principale de l'annuaire"""
 	def __init__(self):
 		QMainWindow.__init__(self)
 		self.setWindowTitle("Annuaire")
