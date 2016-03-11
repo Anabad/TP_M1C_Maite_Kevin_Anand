@@ -97,4 +97,6 @@ class WidgetContact(QGroupBox):
 		pass
 	def modifierValeurLineEdit(self):
 		pass
+	def resizeEvent(self, evt=None):
+		print("PATRON")
 
