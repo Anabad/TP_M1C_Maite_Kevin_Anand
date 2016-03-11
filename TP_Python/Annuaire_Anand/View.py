@@ -5,10 +5,11 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from WidgetContact import WidgetContact
 import sys
 
 class View(QMainWindow):
-	""" Cette class sera la class qui fera l'affichage de tout l'annuaire"""
+	""" Cette class est la fenetre principale de l'annuaire"""
 	def __init__(self):
 		QMainWindow.__init__(self)
 		self.setWindowTitle("Annuaire")
@@ -56,14 +57,11 @@ class View(QMainWindow):
 		self.layoutDessousBar = QGridLayout()
 		
 		self.barGauche = QWidget(self.dessousBar)
-		
-		self.zoneAddMod = QWidget(self.dessousBar)
-		self.zoneAffichage = QScrollArea()
+		self.zoneAddMod = WidgetContact(self.dessousBar)
 		
 		self.layoutDessousBar.addWidget(self.barGauche,0,0,1,1)
 		self.layoutDessousBar.addWidget(self.zoneAddMod,0,1,1,5)
-		self.layoutDessousBar.addWidget(self.zoneAffichage,0,1,1,5)
-		self.zoneAddMod.hide()
+		#self.zoneAddMod.hide()
 		
 		self.dessousBar.setLayout(self.layoutDessousBar)
 		
@@ -71,71 +69,15 @@ class View(QMainWindow):
 		self.layoutBarGauche = QVBoxLayout()
 		
 		self.boutonAjouter = QPushButton("Ajouter",self.barGauche)
-		self.boutonEditer = QPushButton("Editer",self.barGauche)
-		self.boutonSupprimer = QPushButton("Supprimer",self.barGauche)
-		
+		self.zoneAffichage = QScrollArea()
 		self.layoutBarGauche.addWidget(self.boutonAjouter)
-		self.layoutBarGauche.addWidget(self.boutonEditer)
-		self.layoutBarGauche.addWidget(self.boutonSupprimer)
+		self.layoutBarGauche.addWidget(self.zoneAffichage)
 		self.barGauche.setLayout(self.layoutBarGauche)
 		
-		# Définition du widget conteneur du ScrollArea
-		self.conteneurScrollArea = QWidget(self.zoneAffichage)
-		
-		# Définition du widgets qui va contenir le formulaire pour ajouter et modifier un contact
-		
-		self.layoutConteneurAddMod = QGridLayout()
-		
-		self.titreLabel = QLabel("*******", self)
-		self.nomAddModLabel = QLabel("NOM", self)
-		self.prenomAddModLabel = QLabel("PRENOM", self)
-		self.numeroAddModLabel = QLabel("NUMERO", self)
-		self.adresseAddModLabel = QLabel("ADRESSE", self)
-		self.typeAddModLabel = QLabel("TYPE", self)
-		self.nomAddModWidget = QLineEdit(self.conteneurScrollArea)
-		self.prenomAddModWidget = QLineEdit("prenom",self.conteneurScrollArea)
-		self.numeroAddModWidget = QLineEdit(self.conteneurScrollArea)
-		self.adresseAddModWidget = QLineEdit(self.conteneurScrollArea)
-		self.typeAddModWidget = QLineEdit(self.conteneurScrollArea)
-		self.boutonValiderAddMod = QPushButton("Valider",self.conteneurScrollArea)
-		
-		
-		
-		self.nomAddModWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		self.prenomAddModWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		self.numeroAddModWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		self.adresseAddModWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		self.typeAddModWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		
-		self.layoutConteneurAddMod.addWidget(self.titreLabel,0,3,1,1)
-		self.layoutConteneurAddMod.addWidget(self.nomAddModLabel,1,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.nomAddModWidget,2,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.prenomAddModLabel,3,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.prenomAddModWidget,4,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.numeroAddModLabel,5,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.numeroAddModWidget,6,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.adresseAddModLabel,7,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.adresseAddModWidget,8,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.typeAddModLabel,9,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.typeAddModWidget,10,0,1,7)
-		self.layoutConteneurAddMod.addWidget(self.boutonValiderAddMod,11,3,1,1)
-		self.zoneAddMod.setLayout(self.layoutConteneurAddMod)
-		
-
 	def connecterWidget(self):
 		self.connect(self.boutonAjouter, SIGNAL("clicked()"),self.SLOT_Ajouter)
 			
 	def SLOT_Ajouter(self):
-		self.zoneAffichage.hide()
-		self.titreLabel.setText("Ajouter")
-		self.nomAddModWidget.setText("")
-		self.prenomAddModWidget.setText("")
-		self.numeroAddModWidget.setText("")
-		self.adresseAddModWidget.setText("")
-		self.typeAddModWidget.setText("")
-		self.zoneAddMod.show()
-		
-		
-		
-		
+		pass
+		#self.zoneAddMod.show()
 
