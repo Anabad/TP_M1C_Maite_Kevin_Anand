@@ -5,7 +5,10 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from Control import Control
 from View import View
+from Model import Model
+
 
 import sqlite3
 import sys

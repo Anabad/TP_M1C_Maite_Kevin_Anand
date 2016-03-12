@@ -5,7 +5,6 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from Control import Control
 from WidgetContact import WidgetContact
 import sys
 
@@ -73,21 +72,29 @@ class View(QMainWindow):
 	def creerDessousFenetre(self):
 		# Définition de la partie de gauche du dessous de la fenetre
 		self.tab = QTabWidget(self.dessousFenetre)
-		self.AtoZ = QWidget()
+		self.AtoZ = QListView()
 		self.Groupe = QWidget()
 		self.tab.addTab(self.AtoZ,"&A-Z")
 		self.tab.addTab(self.Groupe,"&Groupe")
-		self.zoneAddMod = WidgetContact(self.dessousFenetre)
+		self.zoneAddMod = WidgetContact(self.dessousFenetre,self.control)
+		self.AtoZ.setEditTriggers(QAbstractItemView.NoEditTriggers)
 		self.tab.setGeometry(QRect(15, 15, (self.size().width())*35/100-30,self.dessousFenetre.size().height()-30))
 		self.zoneAddMod.setGeometry(QRect(37+ (self.size().width())*35/100-30, 15, (self.size().width())*60/100,self.dessousFenetre.size().height()-30))
 		
 		self.zoneAddMod.setStyleSheet("WidgetContact{border:1px solid white;background-color:rgba(200,200,200,220)}")
 	def connecterWidget(self):
-		pass
-			
-	def SLOT_Ajouter(self):
-		pass
-		#self.zoneAddMod.show()
+		#self.connect(self.AtoZ, SIGNAL("clicked(QModelIndex)"),self.SLOT_Editer)
+		self.AtoZ.selectionModel().currentChanged.connect(self.SLOT_Editer)
+	def updateAffichageContactBar(self,contacts):
+		self.listeContactAtoZ = []
+		self.idContacts = []
+		for contact in contacts:
+			self.idContacts.append(contact[0])
+			self.listeContactAtoZ.append(contact[1]+" "+contact[2])
+		model = QStringListModel(self.listeContactAtoZ)
+		self.AtoZ.setModel(model)			
+	def SLOT_Editer(self,nouvelIndex,ancienIndex):
+		print("PAAATRON"+str(nouvelIndex.row()))
 	def resizeEvent(self, evt=None):
 		self.barHaut.resize(self.conteneur.size().width(),self.barHaut.size().height())
 		self.rechercheWidget.move(self.size().width()- self.rechercheWidget.size().width() - TAILLE_BOUTON - TAILLE_BOUTON,(self.barHaut.size().height()-TAILLE_BOUTON) / 2)

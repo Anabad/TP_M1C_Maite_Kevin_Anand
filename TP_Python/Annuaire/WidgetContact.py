@@ -5,17 +5,18 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from Control import Control
 import sys
 
 class WidgetContact(QGroupBox):
 	""" Cette class sera la class qui fera l'affichage d'un contact"""
 	def __init__(self,parent,control):
-		self.control = control
 		QGroupBox.__init__(self,parent)
+		self.control = control
+		self.init=True
 		self.Edit = False
 		self.creerWidgets()
 		self.connecterWidgets()
+		self.init=False
 	def creerWidgets(self):
 		# Définition du layout qui va contenir et organiser tous les widgets
 		self.layout= QGridLayout()
@@ -94,17 +95,27 @@ class WidgetContact(QGroupBox):
 		self.adresseLineEdit.hide()
 		self.typeLineEdit.hide()
 		
-		self.sauvegarderModification()
+		if self.init == False:
+			self.sauvegarderModification()
+		self.control.updateAffichageContacts()
 	def sauvegarderModification(self):
-		dictionnaire = {}
-		dictionnaire["nom"] = self.nomLineEdit.Text()
-		dictionnaire["prenom"] = self.nomLineEdit.Text()
-		self.control.controlerEnvoyer(dictionnaire)
-		modifierValeurLabel()
+		self.dictionnaire = {}
+		self.dictionnaire["nom"] = self.nomLineEdit.text()
+		self.dictionnaire["prenom"] = self.prenomLineEdit.text()
+		self.dictionnaire["groupe"] = " "
+		self.dictionnaire["favori"] = " "
+		self.dictionnaire["numero"] = " "
+		self.dictionnaire["libelle_numero"] = " "
+		self.dictionnaire["mail"] = " "
+		self.dictionnaire["libelle_mail"] = " "
+		self.dictionnaire["adresse"] = " "
+		self.dictionnaire["libelle_adresse"] = " "
+		self.control.controlerEnvoyer(self.dictionnaire)
+		self.modifierValeurLabel()
 	def modifierValeurLabel(self):
 		pass
 	def modifierValeurLineEdit(self):
 		pass
 	def resizeEvent(self, evt=None):
-		print("PATRON")
+		pass
 
