@@ -15,7 +15,7 @@ class Model:
 		self.control.setModel(self)
 		conn = sqlite3.connect('annuaire.db')
 		cursor = conn.cursor()
-
+		
 		""" Creation de la table des noms et prenoms"""
 		cursor.execute("""
 		CREATE TABLE IF NOT EXISTS nom_prenom(
@@ -171,9 +171,64 @@ class Model:
 	
 		conn.commit()
 		conn.close()
-	def recherche(self,*mots):
+	def rechercher_contact(self,recherche):
+		mots = recherche.split(' ')
 		resultat = []
-		return resultat
+		for mot in mots:
+			mot = mot + '%'
+			# Recherche par nom
+			cursor.execute("""
+			SELECT np.id_contact
+				, np.nom
+				, np.prenom
+				, np.groupe
+				, np.favori
+				, nu.numero
+				, nu.libelle
+				, ma.mail
+				, ma.libelle
+				, ad.adresse
+				, ad.libelle
+			FROM nom_prenom np
+			INNER JOIN numero nu
+				on np.id_contact = nu.id_contact
+			INNER JOIN mail ma
+				on np.id_contact = ma.id_contact
+			INNER JOIN adresse ad
+				on np.id_contact = ad.id_contact
+			WHERE nom LIKE ?
+			""",(mot,))
+			select = cursor.fetchall()
+			if(select):
+				for sel in select:
+					resultat.append(sel)
+			#Recherche par prenom
+			cursor.execute("""
+			SELECT np.id_contact
+				, np.nom
+				, np.prenom
+				, np.groupe
+				, np.favori
+				, nu.numero
+				, nu.libelle
+				, ma.mail
+				, ma.libelle
+				, ad.adresse
+				, ad.libelle
+			FROM nom_prenom np
+			INNER JOIN numero nu
+				on np.id_contact = nu.id_contact
+			INNER JOIN mail ma
+				on np.id_contact = ma.id_contact
+			INNER JOIN adresse ad
+				on np.id_contact = ad.id_contact 
+			WHERE prenom LIKE ?
+			""",(mot,))
+			select = cursor.fetchall()
+			if(select):
+				for sel in select:
+					resultat.append(sel)
+		return set(resultat)
 	def getContacts(self):
 		""" Fonction qui retourne le nom et le prénom de tous les contacts afin de les afficher dans la QListView"""
 		conn = sqlite3.connect('annuaire.db')
@@ -256,4 +311,163 @@ class Model:
 	#conn.commit()
 
 #----------------------------------------
+def rechercher_contact(recherche):
+		mots = recherche.split(' ')
+		resultat = []
+		for mot in mots:
+			mot = '%' + mot + '%'
+			# Recherche par nom
+			cursor.execute("""
+			SELECT np.id_contact
+				, np.nom
+				, np.prenom
+				, np.groupe
+				, np.favori
+				, nu.numero
+				, nu.libelle
+				, ma.mail
+				, ma.libelle
+				, ad.adresse
+				, ad.libelle
+			FROM nom_prenom np
+			INNER JOIN numero nu
+				on np.id_contact = nu.id_contact
+			INNER JOIN mail ma
+				on np.id_contact = ma.id_contact
+			INNER JOIN adresse ad
+				on np.id_contact = ad.id_contact
+			WHERE np.nom LIKE ?
+			""",(mot,))
+			select = cursor.fetchall()
+			if(select):
+				for sel in select:
+					resultat.append(sel)
+			#Recherche par prenom
+			cursor.execute("""
+			SELECT np.id_contact
+				, np.nom
+				, np.prenom
+				, np.groupe
+				, np.favori
+				, nu.numero
+				, nu.libelle
+				, ma.mail
+				, ma.libelle
+				, ad.adresse
+				, ad.libelle
+			FROM nom_prenom np
+			INNER JOIN numero nu
+				on np.id_contact = nu.id_contact
+			INNER JOIN mail ma
+				on np.id_contact = ma.id_contact
+			INNER JOIN adresse ad
+				on np.id_contact = ad.id_contact 
+			WHERE np.prenom LIKE ?
+			""",(mot,))
+			select = cursor.fetchall()
+			if(select):
+				for sel in select:
+					resultat.append(sel)
+			#Recherche par numero
+			cursor.execute("""
+			SELECT np.id_contact
+				, np.nom
+				, np.prenom
+				, np.groupe
+				, np.favori
+				, nu.numero
+				, nu.libelle
+				, ma.mail
+				, ma.libelle
+				, ad.adresse
+				, ad.libelle
+			FROM nom_prenom np
+			INNER JOIN numero nu
+				on np.id_contact = nu.id_contact
+			INNER JOIN mail ma
+				on np.id_contact = ma.id_contact
+			INNER JOIN adresse ad
+				on np.id_contact = ad.id_contact 
+			WHERE nu.numero LIKE ?
+			""",(mot,))
+			select = cursor.fetchall()
+			if(select):
+				for sel in select:
+					resultat.append(sel)
+		return set(resultat)
+		
+def ajouter_contact(contact):
+		""" Fonction pour ajouter un nouveau contact"""
+	
+		# Insertion du nom et prenom
+		cursor.execute("""
+		INSERT INTO nom_prenom(nom,prenom,groupe,favori) VALUES(
+			:nom,
+			:prenom,
+			:groupe,
+			:favori
+		)
+		""",contact)
+		conn.commit()
+	
+		# Recuperation de l'id
+		cursor.execute("""SELECT MAX(id_contact) from nom_prenom""")
+		id_contact = cursor.fetchone()[0]
+		contact["id_contact"] = id_contact
+	
+		#Insertion du numero
+		cursor.execute("""
+		INSERT INTO numero(numero,libelle,id_contact) VALUES(
+			:numero,
+			:libelle_numero,
+			:id_contact
+		)
+		""",contact)
+	
+		#Insertion du mail
+		cursor.execute("""
+		INSERT INTO mail(mail,libelle,id_contact) VALUES(
+			:mail,
+			:libelle_mail,
+			:id_contact
+		)
+		""",contact)
+	
+		#Insertion de l'adresse
+		cursor.execute("""
+		INSERT INTO adresse(adresse,libelle,id_contact) VALUES(
+			:adresse,
+			:libelle_adresse,
+			:id_contact
+		)
+		""",contact)
+	
+		conn.commit()		
+if __name__ == "__main__":
+	conn = sqlite3.connect('annuaire.db')
+	cursor = conn.cursor()
+	#contact = {"nom":"Dilot","prenom":"Kevin","groupe":"Ami","favori":"non",
+	#"numero":"12345678","libelle_numero":"portable","mail":"kevin.didelot@esme.com","libelle_mail":"profesionnel",
+	#"adresse":"devant l''ecole","libelle_adresse":"bureau"}
+	
 
+	
+	cursor.execute("""
+		SELECT * FROM nom_prenom
+		""")
+	a = cursor.fetchall()
+	print(a)
+	print("--------------------")
+	a = rechercher_contact("did")
+	print(a)
+	print("--------------------")
+	b = rechercher_contact("kev")
+	print(b)
+	print("--------------------")
+	c = rechercher_contact("ke did")
+	print(c)
+	print("--------------------")
+	d = rechercher_contact("123")
+	print(d)
+	print("--------------------")
+	conn.close()
