@@ -114,7 +114,6 @@ class Model:
 	
 		conn.commit()
 		conn.close()
-		self.getContacts()
 	#-----------------------------------------------
 	def editer_contact(self,contact):
 		""" Fonction pour editer un contact """
@@ -146,8 +145,37 @@ class Model:
 	
 		conn.commit()
 		conn.close()
+	def supprimerContact(self,contact):
+		""" Fonction pour supprimer un contact """
+		conn = sqlite3.connect('annuaire.db')
+		cursor = conn.cursor()
+		cursor.execute("""
+		DELETE FROM nom_prenom
+			WHERE id_contact= ?
+		""",(contact,))
+	
+		cursor.execute("""
+		DELETE FROM numero
+			WHERE id_contact= ?
+		""",(contact,))
+	
+		cursor.execute("""
+		DELETE FROM mail
+			WHERE id_contact= ?
+		""",(contact,))
+	
+		cursor.execute("""
+		DELETE FROM adresse
+			WHERE id_contact= ?
+		""",(contact,))
+	
+		conn.commit()
+		conn.close()
+	def recherche(self,*mots):
+		resultat = []
+		return resultat
 	def getContacts(self):
-		""" Fonction qui retourne le nom et le prénom de la personne afin de les afficher dans la QListView"""
+		""" Fonction qui retourne le nom et le prénom de tous les contacts afin de les afficher dans la QListView"""
 		conn = sqlite3.connect('annuaire.db')
 		cursor = conn.cursor()
 		cursor.execute("""
@@ -155,7 +183,19 @@ class Model:
 		ORDER BY nom,prenom
 		""")
 		a = cursor.fetchall()
+		conn.close()
 		return a
+	def getContactById(self,index):
+		""" Fonction qui retourne toutes les informations d'une personne identifié par son id """
+		conn = sqlite3.connect('annuaire.db')
+		cursor = conn.cursor()
+		cursor.execute("""
+		SELECT * FROM nom_prenom
+		WHERE id_contact = ?
+		""",(index,))
+		a = cursor.fetchall()
+		conn.close()
+		return a[0]
 	def afficherConsoleContacts(self):
 		# Code pour afficher
 		conn = sqlite3.connect('annuaire.db')
@@ -183,6 +223,7 @@ class Model:
 		""")
 		a = cursor.fetchall()
 		print(a)
+		conn.close()
 		#---------
 	def __del__(self):
 		pass

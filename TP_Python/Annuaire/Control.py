@@ -12,8 +12,9 @@ class Control:
 		self.view = None
 		self.model = None
 	def controlerEnvoyer(self,dictionnaire):
-		print(dictionnaire)
 		self.model.ajouter_contact(dictionnaire)
+	def supprimerContact(self,index):
+		self.model.supprimerContact(index)
 	def setView(self,view):
 		self.view=view
 	def setModel(self,model):
@@ -21,4 +22,10 @@ class Control:
 	def updateAffichageContacts(self):
 		contacts = self.model.getContacts()
 		self.view.updateAffichageContactBar(contacts)
+	def getContactById(self,index):
+		return self.model.getContactById(index)
+	def recherche(self,*mots):
+		return self.model.recherche(mots)
+		
+		
 	
