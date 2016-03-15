@@ -172,12 +172,68 @@ class Model:
 		conn.commit()
 		conn.close()
 	def rechercher_contact(self,recherche):
+		conn = sqlite3.connect('annuaire.db')
+		cursor = conn.cursor()
+		if len(recherche) != 0:
+			if recherche[-1] == ' ':
+				recherche = recherche[:-1]
 		mots = recherche.split(' ')
 		resultat = []
+		iterator=0
 		for mot in mots:
-			mot = mot + '%'
+			if iterator == 0 and len(mots) > 1:
+				mot = '%' + mot
+			else:
+				mot = '%' + mot+ '%'
+			
 			# Recherche par nom
 			cursor.execute("""
+			SELECT * FROM nom_prenom np
+			INNER JOIN numero nu
+				on np.id_contact = nu.id_contact
+			INNER JOIN mail ma
+				on np.id_contact = ma.id_contact
+			INNER JOIN adresse ad
+				on np.id_contact = ad.id_contact
+			WHERE np.nom LIKE ? or np.prenom LIKE ? or nu.numero LIKE ?
+			ORDER BY np.nom,np.prenom
+			""",(mot,mot,mot))
+			resultatRequete=cursor.fetchall()
+			if iterator > 0:
+				for contact in resultatRequete:
+					if resultatRequete in resultat:
+						resultat = resultat + resultatRequete
+			else:
+				resultat = resultatRequete
+			if len(mots) > 1 and len(resultat) == 0:
+				break
+			iterator= iterator + 1 
+		if len(mots) > 1:
+			while 1:
+				sansDoublon = list(set(resultat))
+				if len(sansDoublon) == len(resultat):
+					break
+				for contact in sansDoublon:
+					resultat.remove(contact)
+		conn.close()
+		print(resultat)
+		return resultat
+	def getContacts(self):
+		""" Fonction qui retourne le nom et le prénom de tous les contacts afin de les afficher dans la QListView"""
+		conn = sqlite3.connect('annuaire.db')
+		cursor = conn.cursor()
+		cursor.execute("""
+		SELECT id_contact,nom,prenom FROM nom_prenom
+		ORDER BY nom,prenom
+		""")
+		a = cursor.fetchall()
+		conn.close()
+		return a
+	def getContactById(self,index):
+		""" Fonction qui retourne toutes les informations d'une personne identifié par son id """
+		conn = sqlite3.connect('annuaire.db')
+		cursor = conn.cursor()
+		cursor.execute("""
 			SELECT np.id_contact
 				, np.nom
 				, np.prenom
@@ -196,61 +252,15 @@ class Model:
 				on np.id_contact = ma.id_contact
 			INNER JOIN adresse ad
 				on np.id_contact = ad.id_contact
-			WHERE nom LIKE ?
-			""",(mot,))
-			select = cursor.fetchall()
-			if(select):
-				for sel in select:
-					resultat.append(sel)
-			#Recherche par prenom
-			cursor.execute("""
-			SELECT np.id_contact
-				, np.nom
-				, np.prenom
-				, np.groupe
-				, np.favori
-				, nu.numero
-				, nu.libelle
-				, ma.mail
-				, ma.libelle
-				, ad.adresse
-				, ad.libelle
-			FROM nom_prenom np
-			INNER JOIN numero nu
-				on np.id_contact = nu.id_contact
-			INNER JOIN mail ma
-				on np.id_contact = ma.id_contact
-			INNER JOIN adresse ad
-				on np.id_contact = ad.id_contact 
-			WHERE prenom LIKE ?
-			""",(mot,))
-			select = cursor.fetchall()
-			if(select):
-				for sel in select:
-					resultat.append(sel)
-		return set(resultat)
-	def getContacts(self):
-		""" Fonction qui retourne le nom et le prénom de tous les contacts afin de les afficher dans la QListView"""
-		conn = sqlite3.connect('annuaire.db')
-		cursor = conn.cursor()
-		cursor.execute("""
-		SELECT id_contact,nom,prenom FROM nom_prenom
-		ORDER BY nom,prenom
-		""")
+			WHERE np.id_contact = ?
+			ORDER BY np.nom, np.prenom
+			""",(index,))
 		a = cursor.fetchall()
 		conn.close()
-		return a
-	def getContactById(self,index):
-		""" Fonction qui retourne toutes les informations d'une personne identifié par son id """
-		conn = sqlite3.connect('annuaire.db')
-		cursor = conn.cursor()
-		cursor.execute("""
-		SELECT * FROM nom_prenom
-		WHERE id_contact = ?
-		""",(index,))
-		a = cursor.fetchall()
-		conn.close()
-		return a[0]
+		if len(a) != 0:
+			return a[0]
+		else:
+			return []
 	def afficherConsoleContacts(self):
 		# Code pour afficher
 		conn = sqlite3.connect('annuaire.db')
@@ -312,89 +322,7 @@ class Model:
 
 #----------------------------------------
 def rechercher_contact(recherche):
-		mots = recherche.split(' ')
-		resultat = []
-		for mot in mots:
-			mot = '%' + mot + '%'
-			# Recherche par nom
-			cursor.execute("""
-			SELECT np.id_contact
-				, np.nom
-				, np.prenom
-				, np.groupe
-				, np.favori
-				, nu.numero
-				, nu.libelle
-				, ma.mail
-				, ma.libelle
-				, ad.adresse
-				, ad.libelle
-			FROM nom_prenom np
-			INNER JOIN numero nu
-				on np.id_contact = nu.id_contact
-			INNER JOIN mail ma
-				on np.id_contact = ma.id_contact
-			INNER JOIN adresse ad
-				on np.id_contact = ad.id_contact
-			WHERE np.nom LIKE ?
-			""",(mot,))
-			select = cursor.fetchall()
-			if(select):
-				for sel in select:
-					resultat.append(sel)
-			#Recherche par prenom
-			cursor.execute("""
-			SELECT np.id_contact
-				, np.nom
-				, np.prenom
-				, np.groupe
-				, np.favori
-				, nu.numero
-				, nu.libelle
-				, ma.mail
-				, ma.libelle
-				, ad.adresse
-				, ad.libelle
-			FROM nom_prenom np
-			INNER JOIN numero nu
-				on np.id_contact = nu.id_contact
-			INNER JOIN mail ma
-				on np.id_contact = ma.id_contact
-			INNER JOIN adresse ad
-				on np.id_contact = ad.id_contact 
-			WHERE np.prenom LIKE ?
-			""",(mot,))
-			select = cursor.fetchall()
-			if(select):
-				for sel in select:
-					resultat.append(sel)
-			#Recherche par numero
-			cursor.execute("""
-			SELECT np.id_contact
-				, np.nom
-				, np.prenom
-				, np.groupe
-				, np.favori
-				, nu.numero
-				, nu.libelle
-				, ma.mail
-				, ma.libelle
-				, ad.adresse
-				, ad.libelle
-			FROM nom_prenom np
-			INNER JOIN numero nu
-				on np.id_contact = nu.id_contact
-			INNER JOIN mail ma
-				on np.id_contact = ma.id_contact
-			INNER JOIN adresse ad
-				on np.id_contact = ad.id_contact 
-			WHERE nu.numero LIKE ?
-			""",(mot,))
-			select = cursor.fetchall()
-			if(select):
-				for sel in select:
-					resultat.append(sel)
-		return set(resultat)
+	pass		
 		
 def ajouter_contact(contact):
 		""" Fonction pour ajouter un nouveau contact"""

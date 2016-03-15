@@ -5,6 +5,7 @@
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from threading import Lock
 from WidgetContact import WidgetContact
 import sys
 
@@ -22,6 +23,7 @@ class View(QMainWindow):
 		QMainWindow.__init__(self)
 		self.control = control
 		self.idActif = None
+		self.mutex = Lock()
 		self.control.setView(self)
 		self.idContacts = []
 		self.setWindowTitle("Annuaire")
@@ -55,28 +57,26 @@ class View(QMainWindow):
 		""" Cette fonction défini la bar du haut """
 		self.nouveauContactWidget = QPushButton(self.barHaut)
 		self.rechercheWidget = QLineEdit(self.barHaut)
-		self.bouttonValideRecherche = QPushButton(self.barHaut)
+		self.rechercheLabel = QLabel(self.barHaut)
 		
 		self.nouveauContactWidget.setFlat(True)
 		self.nouveauContactWidget.setFixedSize(TAILLE_BOUTON_CARRE,TAILLE_BOUTON_CARRE)
 		self.rechercheWidget.setFixedSize(TAILLE_BARRE_RECHERCHE,TAILLE_BOUTON_CARRE-1)
-		self.bouttonValideRecherche.setFixedSize(TAILLE_BOUTON_CARRE,TAILLE_BOUTON_CARRE)
-		self.bouttonValideRecherche.setFlat(True)
+		self.rechercheLabel.setFixedSize(TAILLE_BOUTON_CARRE,TAILLE_BOUTON_CARRE)
 		self.nouveauContactWidget.move((self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2,(self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2)
 		self.rechercheWidget.move(self.size().width() - self.rechercheWidget.size().width() - TAILLE_BOUTON_CARRE - TAILLE_BOUTON_CARRE,15)
-		self.bouttonValideRecherche.move(self.size().width() - TAILLE_BOUTON_CARRE - TAILLE_BOUTON_CARRE/2,(self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2)
-		
-		self.nouveauContactWidget.setIcon(QIcon(QPixmap("IMAGES/ajouterIcone.png")));
+		self.rechercheLabel.move(self.size().width() - TAILLE_BOUTON_CARRE - TAILLE_BOUTON_CARRE/2,(self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2)
+		self.rechercheWidget.setPlaceholderText("Rechercher")
+		self.nouveauContactWidget.setIcon(QIcon(QPixmap("IMAGES/ajouterIcone.png")))
 		self.nouveauContactWidget.setIconSize(QSize(TAILLE_BOUTON_CARRE-2,TAILLE_BOUTON_CARRE-2))
 		self.nouveauContactWidget.setStyleSheet("background:rgb(255,255,255);border-bottom:none;outline: none;")
 		self.rechercheWidget.setStyleSheet("background-color:rgb(255,255,255)")
-		self.bouttonValideRecherche.setIcon(QIcon(QPixmap("IMAGES/loupe.png")));
-		self.bouttonValideRecherche.setIconSize(QSize(TAILLE_BOUTON_CARRE-2,TAILLE_BOUTON_CARRE-2))
-		self.bouttonValideRecherche.setStyleSheet("border-bottom:none;outline: none;")
+		self.rechercheLabel.setPixmap(QPixmap("IMAGES/loupe.png").scaled(TAILLE_BOUTON_CARRE-2,TAILLE_BOUTON_CARRE-2))
+		self.rechercheLabel.setStyleSheet("border-bottom:none;outline: none;")
 	def creerDessousFenetre(self):
 		# Définition de la partie de gauche du dessous de la fenetre
 		self.tab = QTabWidget(self.dessousFenetre)
-		self.AtoZ = QListView()
+		self.AtoZ = QListWidget()
 		self.Groupe = QWidget()
 		self.tab.addTab(self.AtoZ,"&A-Z")
 		self.tab.addTab(self.Groupe,"&Groupe")
@@ -94,14 +94,14 @@ class View(QMainWindow):
 		self.layoutZoneAddMod.setSpacing(0)
 		self.AtoZ.setEditTriggers(QAbstractItemView.NoEditTriggers)
 		self.conteneurBoutonEditSuppr.setMinimumWidth(2*TAILLE_BOUTON_RECTANGLE_X)
-		self.boutonEdit.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/2*3), TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
-		self.boutonSupprimer.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/2*3), 3*TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
+		self.boutonEdit.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/4*5), TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
+		self.boutonSupprimer.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/4*5), 3*TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
 		self.boutonSupprimer.hide()
 		self.tab.setGeometry(QRect(15, 15, (self.size().width())*35/100-30,self.dessousFenetre.size().height()-30))
 		self.zoneAddMod.setGeometry(QRect(37+ (self.size().width())*35/100-30, 15, (self.size().width())*60/100,self.dessousFenetre.size().height()-30))
 		self.zoneAddMod.setObjectName("zoneAddMod")
 		self.zoneAddMod.setStyleSheet("QWidget#zoneAddMod{border:1px solid white;background-color:rgba(200,200,200,220)}")
-		self.control.updateAffichageContacts()
+		self.control.updateAffichageContacts(self.rechercheWidget.text())
 	def connecterWidget(self):
 		""" Ici nous connectons chaque bouton à sa fonction associé """
 		self.AtoZ.selectionModel().currentChanged.connect(self.SLOT_SelectionContact)		
@@ -115,92 +115,107 @@ class View(QMainWindow):
 		self.boutonEdit.setText("Ajouter")
 		self.boutonSupprimer.hide()
 		self.formulaire.activerEdition("Ajouter")
-	def SLOT_Edition(self):
-		self.boutonSupprimer.show() 	
+		self.formulaire.viderFormulaire()
+	def SLOT_Edition(self): 	
 		if self.formulaire.Statut == "Visualiser":
+			self.boutonSupprimer.show()
 			self.boutonEdit.setText("Fin édition")
 			self.boutonSupprimer.setText("Annuler")
 			self.formulaire.activerEdition("Editer")
-		elif self.formulaire.Statut == "Editer":	
+		elif self.formulaire.Statut == "Editer":
+			self.boutonSupprimer.show()
 			self.boutonEdit.setText("Editer")
 			self.boutonSupprimer.setText("Supprimer")
 			contact = self.formulaire.getModification()
 			self.modifierContact()
 			self.formulaire.desactiverEdition()
-			self.control.updateAffichageContacts()
-		else:
+			self.control.updateAffichageContacts(self.rechercheWidget.text())
+		elif self.formulaire.Statut == "Ajouter":
+			self.boutonSupprimer.show()
 			self.boutonEdit.setText("Editer")
 			self.boutonSupprimer.setText("Supprimer")
+			self.ajouterContact()
+			self.formulaire.desactiverEdition()
+			self.control.updateAffichageContacts(self.rechercheWidget.text())
+		else:
+			self.boutonEdit.setText("Ajouter")
+			self.boutonSupprimer.hide()
 			contact = self.formulaire.getModification()
 			self.ajouterContact()
 			self.formulaire.desactiverEdition()
-			self.control.updateAffichageContacts()
+			self.control.updateAffichageContacts(self.rechercheWidget.text())
 			
 	def SLOT_Supprimer(self):
-		print(self.idActif)
-		if self.formulaire.Statut == False:
+		if self.formulaire.Statut == "Visualiser":
 			if self.idActif != None:
 				reponse = QMessageBox.question(self, "Confirmer suppression", "Etes vous sûr de vouloir supprimer définitivement ce contact ?", QMessageBox.Yes | QMessageBox.No)
 				if reponse == QMessageBox.Yes:
 					self.control.supprimerContact(self.idActif)
-					self.control.updateAffichageContacts()
-					self.idActif=self.idContacts[0]				 
-					self.AtoZ.setCurrentIndex(self.AtoZ.rootIndex())
-					
+					self.control.updateAffichageContacts(self.rechercheWidget.text())
+					if len(self.idContacts):
+						self.idActif=self.idContacts[0]				 
+						self.AtoZ.setCurrentIndex(self.AtoZ.rootIndex())
+					else:
+						self.idActif=None		
 		else:
-			self.formulaire.Statut = True
+			self.formulaire.Statut = "Visualiser"
 			self.boutonEdit.setText("Editer")
 			self.boutonSupprimer.setText("Supprimer")
 			self.boutonSupprimer.show()
 			self.updateFormulaire()
 			self.formulaire.desactiverEdition()
 	def SLOT_SelectionContact(self,nouvelIndex):
-		self.formulaire.Statut = True
+		self.formulaire.Statut = "Visualiser"
 		self.boutonEdit.setText("Editer")
 		self.boutonSupprimer.show()
 		self.formulaire.desactiverEdition()
-		self.idActif = self.idContacts[nouvelIndex.row()]
-		self.updateFormulaire()
+		try:
+			self.idActif = self.idContacts[nouvelIndex.row()]
+			self.updateFormulaire()
+		except IndexError:
+			return
 	def updateFormulaire(self):
 		contact = self.control.getContactById(self.idActif)
-		dictionnaire={}
-		dictionnaire["nom"] = contact[1]
-		dictionnaire["prenom"] = contact[2]
-		dictionnaire["groupe"] = " "
-		dictionnaire["favori"] = " "
-		dictionnaire["numero"] = " "
-		dictionnaire["libelle_numero"] = " "
-		dictionnaire["mail"] = " "
-		dictionnaire["libelle_mail"] = " "
-		dictionnaire["adresse"] = " "
-		dictionnaire["libelle_adresse"] = " "
-		self.formulaire.setValeurs(dictionnaire)
+		if len(contact) != 0:
+			dictionnaire= {}
+			dictionnaire["nom"] = contact[1]
+			dictionnaire["prenom"] = contact[2]
+			dictionnaire["groupe"] = contact[3]
+			dictionnaire["favori"] = contact[4]
+			dictionnaire["numero"] = contact[5]
+			dictionnaire["libelle_numero"] = contact[6]
+			dictionnaire["mail"] = contact[7]
+			dictionnaire["libelle_mail"] = contact[8]
+			dictionnaire["adresse"] = contact[9]
+			dictionnaire["libelle_adresse"] = contact[10]
+			self.formulaire.setValeurs(dictionnaire)
 	def SLOT_BarreRecherche(self):
-		print(self.rechercheWidget.text().split())
-		contacts = []
-		self.control.recherche(self.rechercheWidget.text())
-		self.updateAffichageContactBar(contacts)
+		self.control.updateAffichageContacts(self.rechercheWidget.text())
 		
 	def ajouterContact(self):
-		self.control.controlerEnvoyer(self.formulaire.getModification())
+		self.control.controlerAjouter(self.formulaire.getModification())
 	def modifierContact(self):
-		pass
+		contact = self.formulaire.getModification()
+		contact["id_contact"] = self.idActif
+		self.control.controlerModifier(contact)
 	def updateAffichageContactBar(self,contacts):
-		self.idContacts=[]
-		liste=[]
-		for contact in contacts:
-			self.idContacts.append(contact[0])
-			liste.append(contact[1] + " " + contact[2])	
-		list_model = QStringListModel(liste)
-		self.AtoZ.setModel(list_model)
+		try:
+			self.idContacts=[]
+			liste=[]
+			self.AtoZ.clear()
+			for contact in contacts:
+				self.idContacts.append(contact[0])
+				self.AtoZ.addItem(contact[1] + " " + contact[2])
+		except IndexError:
+			return
 	def resizeEvent(self, evt=None):
 		self.barHaut.resize(self.conteneur.size().width(),self.barHaut.size().height())
 		self.rechercheWidget.move(self.size().width()- self.rechercheWidget.size().width() - TAILLE_BOUTON_CARRE - TAILLE_BOUTON_CARRE,(self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2)
-		self.bouttonValideRecherche.move(self.size().width() - TAILLE_BOUTON_CARRE - TAILLE_BOUTON_CARRE/2,(self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2)
+		self.rechercheLabel.move(self.size().width() - TAILLE_BOUTON_CARRE - TAILLE_BOUTON_CARRE/2,(self.barHaut.size().height()-TAILLE_BOUTON_CARRE) / 2)
 		self.dessousFenetre.setGeometry(0,75,self.size().width(), self.size().height()-self.barHaut.size().height())
 		self.tab.setGeometry(QRect(15, 15, (self.size().width())*35/100-30,self.dessousFenetre.size().height()-30))
 		self.zoneAddMod.setGeometry(QRect(37+ (self.size().width())*35/100-30, 15, (self.size().width())*60/100,self.dessousFenetre.size().height()-30))
-		self.boutonEdit.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/2*3), TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
-		self.boutonSupprimer.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/2*3), 3*TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
+		self.boutonEdit.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/4*5), TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
+		self.boutonSupprimer.setGeometry(QRect(self.conteneurBoutonEditSuppr.size().width()-(TAILLE_BOUTON_RECTANGLE_X/4*5), 3*TAILLE_BOUTON_RECTANGLE_Y/2,TAILLE_BOUTON_RECTANGLE_X,TAILLE_BOUTON_RECTANGLE_Y))
 		
 
