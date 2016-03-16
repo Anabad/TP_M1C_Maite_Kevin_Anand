@@ -386,7 +386,7 @@ if __name__ == "__main__":
 	a = cursor.fetchall()
 	print(a)
 	print("--------------------")
-	a = rechercher_contact("did")
+	a = rechercher_contact("")
 	print(a)
 	print("--------------------")
 	b = rechercher_contact("kev")
