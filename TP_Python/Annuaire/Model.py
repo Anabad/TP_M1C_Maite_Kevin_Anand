@@ -7,6 +7,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys
 import sqlite3
+import math
 
 
 class Model:
@@ -140,7 +141,7 @@ class Model:
 	
 		#Modification a toujours lieu sauf a la creation du premier numero
 		if ("id_numero" in contact.keys()):
-			for i in range(0,len(contact["numero"])): 
+			for i in range(0,int(math.fabs(len(contact["numero"]) - len(id)))): 
 				cursor.execute("""
 				UPDATE numero
 					SET numero=?,libelle=?
@@ -184,7 +185,7 @@ class Model:
 	
 		#Modification a toujours lieu sauf a la creation du premier mail
 		if ("id_mail" in contact.keys()):
-			for i in range(0,len(contact["mail"])): 
+			for i in range(0,int(math.fabs(len(contact["mail"]) - len(id)))): 
 				cursor.execute("""
 				UPDATE mail
 					SET mail=?,libelle=?
@@ -227,7 +228,7 @@ class Model:
 	
 		#Modification a toujours lieu sauf a la creation de la premiere adresse
 		if ("id_adresse" in contact.keys()):
-			for i in range(0,len(contact["adresse"])): 
+			for i in range(0,int(math.fabs(len(contact["adresse"]) - len(id)))): 
 				cursor.execute("""
 				UPDATE adresse
 					SET adresse=?,libelle=?
@@ -476,7 +477,7 @@ class Model:
 		conn.close()
 		#---------
 	
-	def db_empty():
+	def db_empty(self):
 		conn = sqlite3.connect('annuaire.db')
 		cursor = conn.cursor()
 		
@@ -567,13 +568,25 @@ def ajouter_contact(contact):
 		)
 		""",contact)
 	
-		conn.commit()		
+		conn.commit()
+
+def db_empty(self):
+	conn = sqlite3.connect('annuaire.db')
+	cursor = conn.cursor()
+	
+	cursor.execute("""
+	SELECT * FROM nom_prenom
+	""")
+	a = cursor.fetchall()
+	conn.close()
+	return len(a)+1
+		
 if __name__ == "__main__":
 	conn = sqlite3.connect('annuaire.db')
 	cursor = conn.cursor()
 	contact = {"nom":"Dilot","prenom":"Kevin","groupe":"Ami","favori":"non",
 	"numero":["12345678"],"libelle_numero":["portable"],"mail":["kevin.didelot@esme.com"],"libelle_mail":["profesionnel"],
 	"adresse":["devant l''ecole"],"libelle_adresse":["bureau"]}
-	m = Model()
+	m = Model(1)
 	m.ajouter_contact(contact)
 	conn.close()
