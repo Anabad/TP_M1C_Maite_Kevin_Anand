@@ -28,7 +28,7 @@ class WidgetContact(QGroupBox):
 	def __init__(self,parent):
 		QGroupBox.__init__(self,parent)
 		self.__statut = None
-		self.__dictionnaire = {"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[""],"id_mail":[""],"id_adresse":[""]}
+		self.dictionnaire = {"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[""],"id_mail":[""],"id_adresse":[""]}
 		self.creerWidgets()
 		self.statut("Ajouter",{})
 	def creerWidgets(self):
@@ -44,6 +44,7 @@ class WidgetContact(QGroupBox):
 		self.labelNomPrenom = QLabel(self.conteneurScroll)
 		self.nomLineEdit = QLineEdit(self.conteneurScroll)
 		self.prenomLineEdit = QLineEdit(self.conteneurScroll)
+		self.favori = QPushButton(self.conteneurScroll)
 		
 		self.labelNumero = QLabel(self.conteneurScroll)
 		self.numerolibelleComboBox = []
@@ -112,7 +113,8 @@ class WidgetContact(QGroupBox):
 	##		FONCTIONS UTILES
 	def __activerEdition(self):
 		self.nomLineEdit.setEnabled(True) 
-		self.prenomLineEdit.setEnabled(True) 
+		self.prenomLineEdit.setEnabled(True)
+		self.favori.setEnabled(True)
 		self.groupeComboBox.setEnabled(True)
 		for numeroLibelle in self.numerolibelleComboBox:
 			numeroLibelle.setEnabled(True)
@@ -132,6 +134,7 @@ class WidgetContact(QGroupBox):
 	def __desactiverEdition(self):
 		self.nomLineEdit.setEnabled(False)
 		self.prenomLineEdit.setEnabled(False)
+		self.favori.setEnabled(False)
 		for numeroLibelle in self.numerolibelleComboBox:
 			numeroLibelle.setEnabled(False)
 		for numero in self.numeroLineEdit:
@@ -153,9 +156,16 @@ class WidgetContact(QGroupBox):
 		self.curseur_y=0
 		
 		self.labelNomPrenom.setGeometry(TAILLE_ESPACE,TAILLE_ESPACE,TAILLE_ICONE_MOYENNE,TAILLE_ICONE_MOYENNE)
-		self.nomLineEdit.setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE,TAILLE_ESPACE,TAILLE_LINE_EDIT_X,TAILLE_LINE_EDIT_Y);self.curseur_y=TAILLE_ESPACE+TAILLE_LINE_EDIT_Y
+		self.nomLineEdit.setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE,TAILLE_ESPACE,TAILLE_LINE_EDIT_X,TAILLE_LINE_EDIT_Y)
+		self.favori.setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE+TAILLE_LINE_EDIT_X+TAILLE_ESPACE/2,TAILLE_ESPACE,TAILLE_ICONE_PETITE,TAILLE_ICONE_PETITE)
+		self.curseur_y=TAILLE_ESPACE+TAILLE_LINE_EDIT_Y
+		if self.dictionnaire["favori"] == "non":
+			self.favori.setObjectName("oui")
+			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/nonfavoris.png); }")
+		else:
+			self.favori.setObjectName("non")
+			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/favoris.png); }")
 		self.prenomLineEdit.setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE,TAILLE_ESPACE+self.curseur_y,TAILLE_LINE_EDIT_X,TAILLE_LINE_EDIT_Y);self.curseur_y = self.curseur_y + TAILLE_ESPACE + TAILLE_LINE_EDIT_Y
-
 		self.__ajouterComboLinePushbutton(self.ligne,self.labelNumero,self.numerolibelleComboBox,self.numeroLineEdit,self.supprimernumeroPushButton,self.numeroAjouterPushButton,"numero",["Mobile","Domicile","Bureau"])	
 		self.__ajouterComboLinePushbutton(self.ligne2,self.labelmail,self.mailLibelleComboBox,self.mailLineEdit,self.supprimerMailPushButton,self.mailAjouterPushButton,"mail",["Domicile","Bureau"])
 		self.__ajouterComboLinePushbutton(self.ligne3,self.labelAdresse,self.adresseLibelleComboBox,self.adresseLineEdit,self.supprimerAdressePushButton,self.adresseAjouterPushButton,"adresse",["Domicile","Bureau"])
@@ -181,7 +191,7 @@ class WidgetContact(QGroupBox):
 				s.setParent(None)
 				del s
 			del supprimer[:]
-		for i in range(0,len(self.__dictionnaire["libelle_"+donnee])):
+		for i in range(0,len(self.dictionnaire["libelle_"+donnee])):
 			libelle.append(QComboBox(self.conteneurScroll))
 			line.append(QLineEdit(self.conteneurScroll))
 			for item in items:
@@ -189,7 +199,7 @@ class WidgetContact(QGroupBox):
 			libelle[-1].setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE,self.curseur_y+TAILLE_ESPACE,TAILLE_COMBO_BOX_X,TAILLE_COMBO_BOX_Y)
 			libelle[-1].setStyleSheet("background-color:rgb(255,255,255,0);color: #F24C04;font-weight: bold")
 			line[-1].setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE+TAILLE_COMBO_BOX_X+TAILLE_ESPACE/2,self.curseur_y+TAILLE_ESPACE,TAILLE_NUMERO_X,TAILLE_NUMERO_Y)
-			if len(self.__dictionnaire["libelle_"+donnee]) > 1:
+			if len(self.dictionnaire["libelle_"+donnee]) > 1:
 				if self.__statut != "Visualiser":
 					supprimer.append(QPushButton(self.conteneurScroll))
 					supprimer[-1].setGeometry(2*TAILLE_ESPACE+TAILLE_ICONE_MOYENNE+TAILLE_COMBO_BOX_X+TAILLE_ESPACE/2+TAILLE_NUMERO_X+TAILLE_ESPACE/2,self.curseur_y+TAILLE_ESPACE,TAILLE_ICONE_PETITE,TAILLE_ICONE_PETITE)
@@ -213,32 +223,38 @@ class WidgetContact(QGroupBox):
 	# GESTION DES DONNEES INTERNES
 	def setValeurs(self):
 		self.positionnerWidget()
-		self.nomLineEdit.setText(self.__dictionnaire["nom"])
-		self.prenomLineEdit.setText(self.__dictionnaire["prenom"])
-		self.groupeComboBox.setCurrentIndex(self.groupeComboBox.findData(self.__dictionnaire["groupe"]))
+		self.nomLineEdit.setText(self.dictionnaire["nom"])
+		self.prenomLineEdit.setText(self.dictionnaire["prenom"])
+		if self.dictionnaire["favori"] == "non":
+			self.favori.setObjectName("non")
+			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/nonfavoris.png); }")
+		else:
+			self.favori.setObjectName("oui")
+			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/favoris.png); }")
+		self.groupeComboBox.setCurrentIndex(self.groupeComboBox.findData(self.dictionnaire["groupe"]))
 		#dictionnaire["favori"] = "non"
 		i=0
-		for value in self.__dictionnaire["numero"]:
+		for value in self.dictionnaire["numero"]:
 			self.numeroLineEdit[i].setText(value)
 			i=i+1
 		i=0
-		for value in self.__dictionnaire["libelle_numero"]:
+		for value in self.dictionnaire["libelle_numero"]:
 			self.numerolibelleComboBox[i].setCurrentIndex(self.numerolibelleComboBox[i].findData(value))
 			i=i+1
 		i=0
-		for value in self.__dictionnaire["mail"]:
+		for value in self.dictionnaire["mail"]:
 			self.mailLineEdit[i].setText(value)
 			i=i+1
 		i=0
-		for value in self.__dictionnaire["libelle_mail"]:
+		for value in self.dictionnaire["libelle_mail"]:
 			self.mailLibelleComboBox[i].setCurrentIndex(self.mailLibelleComboBox[i].findData(value))
 			i=i+1
 		i=0
-		for value in self.__dictionnaire["adresse"]:
+		for value in self.dictionnaire["adresse"]:
 			self.adresseLineEdit[i].setText(value)
 			i=i+1
 		i=0
-		for value in self.__dictionnaire["libelle_adresse"]:
+		for value in self.dictionnaire["libelle_adresse"]:
 			self.adresseLibelleComboBox[i].setCurrentIndex(self.adresseLibelleComboBox[i].findData(value))
 		#On redesactive l'édition car en récuperant les valeurs dans les widgets ils se sont réactivés
 		if self.__statut == "Visualiser":
@@ -248,66 +264,64 @@ class WidgetContact(QGroupBox):
 		dictionnaire = {}
 		dictionnaire["nom"] = self.nomLineEdit.text()
 		dictionnaire["prenom"] = self.prenomLineEdit.text()
+		dictionnaire["favori"] = self.favori.objectName()
 		dictionnaire["groupe"] = self.groupeComboBox.currentText()
-		dictionnaire["favori"] = "non"
 		i=0
-		if "id_contact" in self.__dictionnaire.keys():
-			dictionnaire["id_adresse"]=self.__dictionnaire["id_adresse"]
-			dictionnaire["id_numero"]=self.__dictionnaire["id_numero"]
-			dictionnaire["id_mail"]=self.__dictionnaire["id_mail"]
-			dictionnaire["id_contact"]=self.__dictionnaire["id_contact"]
+		if "id_contact" in self.dictionnaire.keys():
+			dictionnaire["id_adresse"]=self.dictionnaire["id_adresse"]
+			dictionnaire["id_numero"]=self.dictionnaire["id_numero"]
+			dictionnaire["id_mail"]=self.dictionnaire["id_mail"]
+			dictionnaire["id_contact"]=self.dictionnaire["id_contact"]
 		dictionnaire["numero"]=[]
-		for value in self.__dictionnaire["libelle_numero"]:
+		for value in self.dictionnaire["libelle_numero"]:
 			dictionnaire["numero"].append(self.numeroLineEdit[i].text())
 			i=i+1
 		i=0
 		dictionnaire["libelle_numero"]=[]
-		for value in self.__dictionnaire["libelle_numero"]:
+		for value in self.dictionnaire["libelle_numero"]:
 			dictionnaire["libelle_numero"].append(self.numerolibelleComboBox[i].currentText())
 			i=i+1
 		i=0
 		dictionnaire["mail"]=[]
-		for value in self.__dictionnaire["libelle_mail"]:
+		for value in self.dictionnaire["libelle_mail"]:
 			dictionnaire["mail"].append(self.mailLineEdit[i].text())
 			i=i+1
 		i=0
 		dictionnaire["libelle_mail"]=[]
-		for value in self.__dictionnaire["libelle_mail"]:
+		for value in self.dictionnaire["libelle_mail"]:
 			dictionnaire["libelle_mail"].append(self.mailLibelleComboBox[i].currentText())
 			i=i+1
 		i=0
 		dictionnaire["adresse"]=[]
-		for value in self.__dictionnaire["libelle_adresse"]:
+		for value in self.dictionnaire["libelle_adresse"]:
 			dictionnaire["adresse"].append(self.adresseLineEdit[i].text())
 			i=i+1
 		i=0
 		dictionnaire["libelle_adresse"]=[]
-		for value in self.__dictionnaire["libelle_adresse"]:
+		for value in self.dictionnaire["libelle_adresse"]:
 			dictionnaire["libelle_adresse"].append(self.adresseLibelleComboBox[i].currentText())
 			i=i+1
 		if self.__statut == "Visualiser":
 			self.__desactiverEdition()
-		self.__dictionnaire=dictionnaire
+		self.dictionnaire=dictionnaire
 		return dictionnaire
 	def viderFormulaire(self):
 		self.nomLineEdit.setText("")
 		self.prenomLineEdit.setText("")
-		self.__dictionnaire={"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[""],"id_mail":[""],"id_adresse":[""]}
+		self.dictionnaire={"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[""],"id_mail":[""],"id_adresse":[""]}
 		self.positionnerWidget()
 		
 	def statut(self,futurStatut,dictionnaire):
 		self.__statut = futurStatut 
 		if futurStatut == "Editer":
-			self.__dictionnaire=dictionnaire
-			self.positionnerWidget()
+			self.dictionnaire=dictionnaire
 			self.__activerEdition()
 			self.setValeurs()
 		elif futurStatut == "Ajouter":
 			self.__activerEdition()
 			self.viderFormulaire()
 		elif futurStatut == "Visualiser":
-			self.__dictionnaire=dictionnaire
-			self.positionnerWidget()
+			self.dictionnaire=dictionnaire
 			self.setValeurs()
 			self.__desactiverEdition()
 		else:
@@ -316,27 +330,29 @@ class WidgetContact(QGroupBox):
 		return self.__statut
 		
 	def delValueDictionnaire(self,index,key):
-		print(self.__dictionnaire["libelle_"+key])
-		if ("id_"+key) in self.__dictionnaire.keys():
-			if index < len(self.__dictionnaire[("id_"+key)]):
-				del self.__dictionnaire["id_"+key][index]
-		del self.__dictionnaire["libelle_"+key][index]
-		del self.__dictionnaire[key][index]
+		print(self.dictionnaire["libelle_"+key])
+		if ("id_"+key) in self.dictionnaire.keys():
+			if index < len(self.dictionnaire[("id_"+key)]):
+				del self.dictionnaire["id_"+key][index]
+		del self.dictionnaire["libelle_"+key][index]
+		del self.dictionnaire[key][index]
 	##		PARTIE EVENT
 	def connecterWidget(self):
 		self.connect(self.numeroAjouterPushButton, SIGNAL("clicked()"),self.SLOT_ajouterDonnee)
 		self.connect(self.mailAjouterPushButton, SIGNAL("clicked()"),self.SLOT_ajouterDonnee)
 		self.connect(self.adresseAjouterPushButton, SIGNAL("clicked()"),self.SLOT_ajouterDonnee)
+		self.connect(self.favori, SIGNAL("clicked()"),self.SLOT_Favoris)
+		
 	#	SLOTS
 	def SLOT_ajouterDonnee(self):
 				# Ici on utilise getValeurs car celle ci met aussi à jour notre dictionnaire qui sera utilisé dans le setValeur
 		self.getValeurs()
 		if self.sender() == self.numeroAjouterPushButton:
-			self.__dictionnaire["libelle_numero"].append("Mobile")
+			self.dictionnaire["libelle_numero"].append("Mobile")
 		elif self.sender() == self.mailAjouterPushButton:
-			self.__dictionnaire["libelle_mail"].append("Domicile")
+			self.dictionnaire["libelle_mail"].append("Domicile")
 		elif self.sender() == self.adresseAjouterPushButton:
-			self.__dictionnaire["libelle_adresse"].append("Domicile")
+			self.dictionnaire["libelle_adresse"].append("Domicile")
 		self.positionnerWidget()
 		self.setValeurs()
 	def SLOT_supprimerDonnee(self):
@@ -351,6 +367,14 @@ class WidgetContact(QGroupBox):
 		self.positionnerWidget()
 		self.setValeurs()
 		
+	def SLOT_Favoris(self):
+		if self.favori.objectName() == "non":
+			self.favori.setObjectName("oui")
+			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/favoris.png); }")
+		else:
+			self.favori.setObjectName("non")
+			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/nonfavoris.png); }")
+			print(self.favori.objectName())
 	#	REDIMENSIONNEMENT
 	def resizeEvent(self, evt=None):
 		self.scroll.setGeometry(0,5,self.size().width(),self.size().height()-10)
