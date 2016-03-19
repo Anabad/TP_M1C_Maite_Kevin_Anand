@@ -152,6 +152,8 @@ class View(QMainWindow):
 				for contact in contacts:
 					self.idContacts.append(contact[0])
 					self.AtoZ.addItem(contact[1] + " " + contact[2])
+					item = self.AtoZ.item(self.AtoZ.count()-1)
+					item.setTextAlignment(Qt.AlignCenter)
 				self.AtoZ.selectionModel().currentChanged.connect(self.SLOT_SelectionContact)
 			except IndexError:
 				print("bug")
@@ -161,9 +163,19 @@ class View(QMainWindow):
 				liste=[]
 				self.Groupe.selectionModel().currentChanged.disconnect()
 				self.Groupe.clear()
+				groupe=""
 				for contact in contactsGroupe:
+					if groupe != contact[3]:
+						groupe=contact[3]
+						self.idContactsGroupe.append(-1)
+						self.Groupe.addItem("--"+groupe+"--")
+						item = self.Groupe.item(self.Groupe.count()-1)
+						item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+						item.setTextAlignment(Qt.AlignCenter)
 					self.idContactsGroupe.append(contact[0])
 					self.Groupe.addItem(contact[1] + " " + contact[2])
+					item = self.Groupe.item(self.Groupe.count()-1)
+					item.setTextAlignment(Qt.AlignCenter)
 				self.Groupe.selectionModel().currentChanged.connect(self.SLOT_SelectionContactGroupe)
 			except IndexError:
 				print("bug")
