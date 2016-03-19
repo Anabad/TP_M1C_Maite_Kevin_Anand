@@ -256,6 +256,7 @@ class WidgetContact(QGroupBox):
 		i=0
 		for value in self.dictionnaire["libelle_adresse"]:
 			self.adresseLibelleComboBox[i].setCurrentIndex(self.adresseLibelleComboBox[i].findData(value))
+			i=i+1
 		#On redesactive l'édition car en récuperant les valeurs dans les widgets ils se sont réactivés
 		if self.__statut == "Visualiser":
 			self.__desactiverEdition()
@@ -267,10 +268,13 @@ class WidgetContact(QGroupBox):
 		dictionnaire["favori"] = self.favori.objectName()
 		dictionnaire["groupe"] = self.groupeComboBox.currentText()
 		i=0
-		if "id_contact" in self.dictionnaire.keys():
+		if "id_adresse" in self.dictionnaire.keys():
 			dictionnaire["id_adresse"]=self.dictionnaire["id_adresse"]
+		if "id_numero" in self.dictionnaire.keys():
 			dictionnaire["id_numero"]=self.dictionnaire["id_numero"]
+		if "id_mail" in self.dictionnaire.keys():
 			dictionnaire["id_mail"]=self.dictionnaire["id_mail"]
+		if "id_contact" in self.dictionnaire.keys():
 			dictionnaire["id_contact"]=self.dictionnaire["id_contact"]
 		dictionnaire["numero"]=[]
 		for value in self.dictionnaire["libelle_numero"]:
@@ -334,6 +338,8 @@ class WidgetContact(QGroupBox):
 		if ("id_"+key) in self.dictionnaire.keys():
 			if index < len(self.dictionnaire[("id_"+key)]):
 				del self.dictionnaire["id_"+key][index]
+				if len(self.dictionnaire["id_"+key]) == 0:
+					del self.dictionnaire["id_"+key]
 		del self.dictionnaire["libelle_"+key][index]
 		del self.dictionnaire[key][index]
 	##		PARTIE EVENT
