@@ -102,7 +102,8 @@ class Model:
 			SET nom=:nom,prenom=:prenom,groupe=:groupe,favori=:favori
 			WHERE id_contact=:id_contact
 		""",contact)
-	
+		
+		conn.commit()
 		#-----------------------------------------------------------------------
 		# Ajout, suppression et modification des numeros de telephone
 
@@ -113,35 +114,45 @@ class Model:
 		FROM numero
 		WHERE id_contact =:id_contact
 		""",contact)
-		id = cursor.fetchall()
-		remID = list(id)
+		dataID = cursor.fetchall()
+		remID = list(dataID)
 	
 
-		#Suppression	
-		if (len(id) > len(contact["numero"])):
+		#Suppression
+		if ("id_numero" in contact.keys()):
 			for i in contact["id_numero"]:
 				remID.remove((i,))
 		
-			for rem in remID:
-				cursor.execute("""
-				DELETE FROM numero
-				WHERE id_numero =?
-				""",rem)
-	
+		for rem in remID:
+			cursor.execute("""
+			DELETE FROM numero
+			WHERE id_numero =?
+			""",rem)
+		
+		conn.commit()
+		
+		# Mise a jour de dataID
+		
+		cursor.execute("""
+		SELECT id_numero
+		FROM numero
+		WHERE id_contact =:id_contact
+		""",contact)
+		dataID = cursor.fetchall()
+		
 		# Ajout
-		elif (len(id) < len(contact["numero"])):
-			for i in range(len(id),len(contact["numero"])):
-				cursor.execute("""
-				INSERT INTO numero(numero,libelle,id_contact) VALUES(
-				?,
-				?,
-				?
-				)
-				""",(contact["numero"][i],contact["libelle_numero"][i],contact["id_contact"]))
+		for i in range(len(dataID),len(contact["numero"])):
+			cursor.execute("""
+			INSERT INTO numero(numero,libelle,id_contact) VALUES(
+			?,
+			?,
+			?
+			)
+			""",(contact["numero"][i],contact["libelle_numero"][i],contact["id_contact"]))
 	
 		#Modification a toujours lieu sauf a la creation du premier numero
 		if ("id_numero" in contact.keys()):
-			for i in range(0,int(math.fabs(len(contact["numero"]) - len(id)))): 
+			for i in range(0,len(contact["id_numero"])): 
 				cursor.execute("""
 				UPDATE numero
 					SET numero=?,libelle=?
@@ -152,83 +163,105 @@ class Model:
 		# Ajout, suppression et modification des mails
 	
 		# On cherche combien de mails sont stockes dans la base
+		
 		cursor.execute("""
 		SELECT id_mail
 		FROM mail
 		WHERE id_contact =:id_contact
 		""",contact)
-		id = cursor.fetchall()
-		remID = list(id)
+		dataID = cursor.fetchall()
+		remID = list(dataID)
 	
 
-		#Suppression	
-		if (len(id) > len(contact["mail"])):
+		#Suppression
+		if ("id_mail" in contact.keys()):
 			for i in contact["id_mail"]:
 				remID.remove((i,))
 		
-			for rem in remID:
-				cursor.execute("""
-				DELETE FROM mail
-				WHERE id_mail =?
-				""",rem)
-	
+		for rem in remID:
+			cursor.execute("""
+			DELETE FROM mail
+			WHERE id_mail =?
+			""",rem)
+		
+		conn.commit()
+		
+		# Mise a jour de dataID
+		
+		cursor.execute("""
+		SELECT id_mail
+		FROM mail
+		WHERE id_contact =:id_contact
+		""",contact)
+		dataID = cursor.fetchall()
+		
 		# Ajout
-		elif (len(id) < len(contact["mail"])):
-			for i in range(len(id),len(contact["mail"])):
-				cursor.execute("""
-				INSERT INTO mail(mail,libelle,id_contact) VALUES(
-				?,
-				?,
-				?
-				)
-				""",(contact["mail"][i],contact["libelle_mail"][i],contact["id_contact"]))
+		for i in range(len(dataID),len(contact["mail"])):
+			cursor.execute("""
+			INSERT INTO mail(mail,libelle,id_contact) VALUES(
+			?,
+			?,
+			?
+			)
+			""",(contact["mail"][i],contact["libelle_mail"][i],contact["id_contact"]))
 	
 		#Modification a toujours lieu sauf a la creation du premier mail
 		if ("id_mail" in contact.keys()):
-			for i in range(0,int(math.fabs(len(contact["mail"]) - len(id)))): 
+			for i in range(0,len(contact["id_mail"])): 
 				cursor.execute("""
 				UPDATE mail
 					SET mail=?,libelle=?
 					WHERE id_mail=?
 				""",(contact["mail"][i],contact["libelle_mail"][i],contact["id_mail"][i]))
-	
 		#---------------------------------------------------------------------------------------
 		# Ajout, suppression et modification des adresses
 	
 		# On cherche combien de adresses sont stockes dans la base
+		
 		cursor.execute("""
 		SELECT id_adresse
 		FROM adresse
 		WHERE id_contact =:id_contact
 		""",contact)
-		id = cursor.fetchall()
-		remID = list(id)
+		dataID = cursor.fetchall()
+		remID = list(dataID)
+	
 
-		#Suppression	
-		if (len(id) > len(contact["adresse"])):
+		#Suppression
+		if ("id_adresse" in contact.keys()):
 			for i in contact["id_adresse"]:
 				remID.remove((i,))
 		
-			for rem in remID:
-				cursor.execute("""
-				DELETE FROM adresse
-				WHERE id_adresse =?
-				""",rem)
-	
+		for rem in remID:
+			cursor.execute("""
+			DELETE FROM adresse
+			WHERE id_adresse =?
+			""",rem)
+		
+		conn.commit()
+		
+		# Mise a jour de dataID
+		
+		cursor.execute("""
+		SELECT id_adresse
+		FROM adresse
+		WHERE id_contact =:id_contact
+		""",contact)
+		dataID = cursor.fetchall()
+		
 		# Ajout
-		elif (len(id) < len(contact["adresse"])):
-			for i in range(len(id),len(contact["adresse"])):
-				cursor.execute("""
-				INSERT INTO adresse(adresse,libelle,id_contact) VALUES(
-				?,
-				?,
-				?
-				)
-				""",(contact["adresse"][i],contact["libelle_adresse"][i],contact["id_contact"]))
+		for i in range(len(dataID),len(contact["adresse"])):
+			cursor.execute("""
+			INSERT INTO adresse(adresse,libelle,id_contact) VALUES(
+			?,
+			?,
+			?
+			)
+			""",(contact["adresse"][i],contact["libelle_adresse"][i],contact["id_contact"]))
 	
-		#Modification a toujours lieu sauf a la creation de la premiere adresse
+		#Modification a toujours lieu sauf a la creation du premier adresse
 		if ("id_adresse" in contact.keys()):
-			for i in range(0,int(math.fabs(len(contact["adresse"]) - len(id)))): 
+			for i in range(0,len(contact["id_adresse"])): 
 				cursor.execute("""
 				UPDATE adresse
 					SET adresse=?,libelle=?
