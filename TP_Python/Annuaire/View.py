@@ -167,7 +167,7 @@ class View(QMainWindow):
 				for contact in contactsGroupe:
 					if groupe != contact[3]:
 						groupe=contact[3]
-						self.idContactsGroupe.append(-1)
+						self.idContactsGroupe.append(None)
 						self.Groupe.addItem("--"+groupe+"--")
 						item = self.Groupe.item(self.Groupe.count()-1)
 						item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
@@ -222,7 +222,10 @@ class View(QMainWindow):
 		elif self.formulaire.getStatut() == "Editer":
 			self.editerContact()
 			self.control.updateAffichageContacts(self.rechercheWidget.text())
-			self.idActif(0)
+			if self.getBarreActive() == "AtoZ":
+				self.idActif(0)
+			else:
+				self.idActif(1)
 			self.formulaire.statut("Visualiser",self.getDictionnaire())
 			self.boutonSupprimer.show()
 			self.boutonEdit.setText("Editer")
@@ -233,7 +236,10 @@ class View(QMainWindow):
 				QMessageBox.critical(self, "Pas assez d'informations", "Vérifiez d'avoir bien rentré au moins le nom et le prenom du contact")
 			else:
 				self.control.updateAffichageContacts(self.rechercheWidget.text())
-				self.idActif(0)
+				if self.getBarreActive() == "AtoZ":
+					self.idActif(0)
+				else:
+					self.idActif(1)
 				self.formulaire.statut("Visualiser",self.getDictionnaire())
 				self.boutonSupprimer.show()
 				self.boutonEdit.setText("Editer")
