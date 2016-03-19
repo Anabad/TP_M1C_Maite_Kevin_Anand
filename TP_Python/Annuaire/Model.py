@@ -7,7 +7,6 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import sys
 import sqlite3
-import math
 
 
 class Model:
@@ -141,7 +140,7 @@ class Model:
 	
 		#Modification a toujours lieu sauf a la creation du premier numero
 		if ("id_numero" in contact.keys()):
-			for i in range(0,int(math.fabs(len(contact["numero"]) - len(id)))): 
+			for i in range(0,len(id)): 
 				cursor.execute("""
 				UPDATE numero
 					SET numero=?,libelle=?
@@ -185,7 +184,7 @@ class Model:
 	
 		#Modification a toujours lieu sauf a la creation du premier mail
 		if ("id_mail" in contact.keys()):
-			for i in range(0,int(math.fabs(len(contact["mail"]) - len(id)))): 
+			for i in range(0,len(id)): 
 				cursor.execute("""
 				UPDATE mail
 					SET mail=?,libelle=?
@@ -228,7 +227,7 @@ class Model:
 	
 		#Modification a toujours lieu sauf a la creation de la premiere adresse
 		if ("id_adresse" in contact.keys()):
-			for i in range(0,int(math.fabs(len(contact["adresse"]) - len(id)))): 
+			for i in range(0,len(id)): 
 				cursor.execute("""
 				UPDATE adresse
 					SET adresse=?,libelle=?
@@ -476,7 +475,6 @@ class Model:
 		print(a)
 		conn.close()
 		#---------
-	
 	def db_empty(self):
 		conn = sqlite3.connect('annuaire.db')
 		cursor = conn.cursor()
@@ -568,25 +566,32 @@ def ajouter_contact(contact):
 		)
 		""",contact)
 	
-		conn.commit()
-
-def db_empty(self):
-	conn = sqlite3.connect('annuaire.db')
-	cursor = conn.cursor()
-	
-	cursor.execute("""
-	SELECT * FROM nom_prenom
-	""")
-	a = cursor.fetchall()
-	conn.close()
-	return len(a)+1
-		
+		conn.commit()		
 if __name__ == "__main__":
 	conn = sqlite3.connect('annuaire.db')
 	cursor = conn.cursor()
-	contact = {"nom":"Dilot","prenom":"Kevin","groupe":"Ami","favori":"non",
-	"numero":["12345678"],"libelle_numero":["portable"],"mail":["kevin.didelot@esme.com"],"libelle_mail":["profesionnel"],
-	"adresse":["devant l''ecole"],"libelle_adresse":["bureau"]}
-	m = Model(1)
-	m.ajouter_contact(contact)
+	#contact = {"nom":"Dilot","prenom":"Kevin","groupe":"Ami","favori":"non",
+	#"numero":"12345678","libelle_numero":"portable","mail":"kevin.didelot@esme.com","libelle_mail":"profesionnel",
+	#"adresse":"devant l''ecole","libelle_adresse":"bureau"}
+	
+
+	
+	cursor.execute("""
+		SELECT * FROM nom_prenom
+		""")
+	a = cursor.fetchall()
+	print(a)
+	print("--------------------")
+	a = rechercher_contact("did")
+	print(a)
+	print("--------------------")
+	b = rechercher_contact("kev")
+	print(b)
+	print("--------------------")
+	c = rechercher_contact("ke did")
+	print(c)
+	print("--------------------")
+	d = rechercher_contact("123")
+	print(d)
+	print("--------------------")
 	conn.close()

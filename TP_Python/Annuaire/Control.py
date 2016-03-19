@@ -31,6 +31,8 @@ class Control:
 		self.view.updateAffichageContactBar(contacts,contactsGroupe)
 	def getContactById(self,index):
 		return self.model.getContactById(index)
+	def testBaseVide(self):
+			return self.model.db_empty()
 		
 		
 	

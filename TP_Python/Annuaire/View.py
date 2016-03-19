@@ -24,6 +24,7 @@ class View(QMainWindow):
 		QMainWindow.__init__(self)
 		self.control = control
 		self.control.setView(self)
+		self.__baseVide = False
 		self.__idActif = None
 		self.__barreActive = "AtoZ"
 		self.idContacts = []
@@ -170,6 +171,14 @@ class View(QMainWindow):
 		contact=self.formulaire.getValeurs()
 		contact["id_contact"]=self.getIdActif()
 		self.control.controlerModifier(contact)
+	def testBaseVide(self):
+		if self.control.testBaseVide() != 1:
+			return 0
+		QMessageBox.critical(self, "Aucun contact", "Aucun contact dans la base à afficher")
+		self.formulaire.statut("Ajouter",{})
+		self.boutonEdit.setText("Ajouter")
+		self.boutonSupprimer.hide()
+		return 1
 	##		PARTIE EVENT
 	def connecterWidget(self):
 		""" Ici nous connectons chaque bouton à sa fonction associé """
@@ -201,6 +210,7 @@ class View(QMainWindow):
 		elif self.formulaire.getStatut() == "Editer":
 			self.editerContact()
 			self.control.updateAffichageContacts(self.rechercheWidget.text())
+			self.idActif(0)
 			self.formulaire.statut("Visualiser",self.getDictionnaire())
 			self.boutonSupprimer.show()
 			self.boutonEdit.setText("Editer")
@@ -208,14 +218,14 @@ class View(QMainWindow):
 		elif self.formulaire.getStatut() == "Ajouter":
 			ajout=self.control.controlerAjouter(self.formulaire.getValeurs())
 			if ajout == 1:
-				QMessageBox.critical(self, "Pas assez d'informations", "Vérifiez d'avoir bien rentré au moins le nom et le prenom du contact");
+				QMessageBox.critical(self, "Pas assez d'informations", "Vérifiez d'avoir bien rentré au moins le nom et le prenom du contact")
 			else:
+				self.control.updateAffichageContacts(self.rechercheWidget.text())
 				self.idActif(0)
 				self.formulaire.statut("Visualiser",self.getDictionnaire())
 				self.boutonSupprimer.show()
 				self.boutonEdit.setText("Editer")
-				self.boutonSupprimer.setText("Supprimer")
-				self.control.updateAffichageContacts(self.rechercheWidget.text())
+				self.boutonSupprimer.setText("Supprimer")					
 				
 	def SLOT_Supprimer(self):
 		if self.formulaire.getStatut() == "Visualiser":
@@ -224,8 +234,10 @@ class View(QMainWindow):
 				if reponse == QMessageBox.Yes:
 					self.control.supprimerContact(self.getIdActif())
 					self.control.updateAffichageContacts(self.rechercheWidget.text())
-					self.idActif(0)
-					self.AtoZ.setCurrentIndex(self.AtoZ.rootIndex())
+					self.formulaire.viderFormulaire()
+					if self.testBaseVide() == 0:
+						self.idActif(0)
+						self.formulaire.statut("Visualiser",self.getDictionnaire())
 				else:
 					self.idActif(None)
 					self.formulaire.viderFormulaire()
