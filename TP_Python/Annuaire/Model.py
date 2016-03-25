@@ -317,14 +317,11 @@ class Model:
 			
 				# Recherche par nom
 				cursor.execute("""
-				SELECT np.id_contact,np.nom,np.prenom,np.groupe FROM nom_prenom np
+				SELECT np.id_contact,np.nom,np.prenom,np.groupe,np.favori FROM nom_prenom np
 				INNER JOIN numero nu
 					on np.id_contact = nu.id_contact
-				INNER JOIN mail ma
-					on np.id_contact = ma.id_contact
-				INNER JOIN adresse ad
-					on np.id_contact = ad.id_contact
 				WHERE (np.nom LIKE ? or np.prenom LIKE ? or nu.numero LIKE ?) and (np.groupe LIKE ? or ? = 1)
+				GROUP BY np.id_contact
 				ORDER BY np.nom,np.prenom
 				""",(mot,mot,mot,groupe,tous))
 				resultatRequete=cursor.fetchall()
@@ -347,7 +344,7 @@ class Model:
 			if len(resultat) > 0:
 				resultatFinal= resultatFinal + resultat
 		conn.close()
-		return set(resultatFinal)
+		return resultatFinal
 	def getContacts(self):
 		""" Fonction qui retourne le nom et le prénom de tous les contacts afin de les afficher dans la QListView"""
 		conn = sqlite3.connect('annuaire.db')

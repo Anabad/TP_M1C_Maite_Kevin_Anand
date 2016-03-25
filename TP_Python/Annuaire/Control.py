@@ -13,6 +13,8 @@ class Control:
 		self.model = None
 	def controlerAjouter(self,dictionnaire):
 		if dictionnaire["nom"] != "" and dictionnaire["prenom"] != "":
+			dictionnaire["nom"] = dictionnaire["nom"].upper()
+			dictionnaire["prenom"] = dictionnaire["prenom"].capitalize()
 			self.model.ajouter_contact(dictionnaire)
 			return 0
 		else:

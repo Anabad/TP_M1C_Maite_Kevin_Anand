@@ -153,7 +153,8 @@ class View(QMainWindow):
 					self.idContacts.append(contact[0])
 					self.AtoZ.addItem(contact[1] + " " + contact[2])
 					item = self.AtoZ.item(self.AtoZ.count()-1)
-					item.setTextAlignment(Qt.AlignCenter)
+					if contact[4] == 'oui':
+						item.setForeground(QColor(191,166,0))
 				self.AtoZ.selectionModel().currentChanged.connect(self.SLOT_SelectionContact)
 			except IndexError:
 				print("bug")
@@ -175,7 +176,8 @@ class View(QMainWindow):
 					self.idContactsGroupe.append(contact[0])
 					self.Groupe.addItem(contact[1] + " " + contact[2])
 					item = self.Groupe.item(self.Groupe.count()-1)
-					item.setTextAlignment(Qt.AlignCenter)
+					if contact[4] == 'oui':
+						item.setForeground(QColor(191,166,0))
 				self.Groupe.selectionModel().currentChanged.connect(self.SLOT_SelectionContactGroupe)
 			except IndexError:
 				print("bug")
