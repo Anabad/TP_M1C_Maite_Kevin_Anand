@@ -64,6 +64,7 @@ class Model:
 		""")
 		conn.commit()
 		conn.close()
+	
 	def ajouter_contact(self,contact):
 		""" Fonction pour ajouter un nouveau contact"""
 		conn = sqlite3.connect('annuaire.db')
@@ -319,11 +320,11 @@ class Model:
 				cursor.execute("""
 				SELECT np.id_contact,np.nom,np.prenom,np.groupe,np.favori FROM nom_prenom np
 				INNER JOIN numero nu
-					on np.id_contact = nu.id_contact
+				on np.id_contact = nu.id_contact
 				WHERE (np.nom LIKE ? or np.prenom LIKE ? or nu.numero LIKE ?) and (np.groupe LIKE ? or ? = 1)
 				GROUP BY np.id_contact
 				ORDER BY np.nom,np.prenom
-				""",(mot,mot,mot,groupe,tous))
+				""",(str(mot),str(mot),str(mot),groupe,tous))
 				resultatRequete=cursor.fetchall()
 				if iterator > 0:
 					for contact in resultatRequete:

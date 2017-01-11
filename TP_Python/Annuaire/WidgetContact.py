@@ -28,7 +28,7 @@ class WidgetContact(QGroupBox):
 	def __init__(self,parent):
 		QGroupBox.__init__(self,parent)
 		self.__statut = None
-		self.dictionnaire = {"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[""],"id_mail":[""],"id_adresse":[""]}
+		self.dictionnaire = {"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[],"id_mail":[],"id_adresse":[]}
 		self.creerWidgets()
 		self.statut("Ajouter",{})
 	def creerWidgets(self):
@@ -66,7 +66,7 @@ class WidgetContact(QGroupBox):
 		
 		self.groupeComboBox = QComboBox(self.conteneurScroll)
 		self.groupeComboBox.addItem("Aucun groupe","Aucun groupe")
-		self.groupeComboBox.addItem("Plan cul","Plan cul")
+		self.groupeComboBox.addItem("Famille","Famille")
 		self.groupeComboBox.addItem("Ami","Ami")
 		self.groupeComboBox.addItem("Travail","Travail")
 		
@@ -312,7 +312,7 @@ class WidgetContact(QGroupBox):
 	def viderFormulaire(self):
 		self.nomLineEdit.setText("")
 		self.prenomLineEdit.setText("")
-		self.dictionnaire={"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[""],"id_mail":[""],"id_adresse":[""]}
+		self.dictionnaire={"nom":"","prenom":"","groupe":"","favori":"non","libelle_numero":[""],"libelle_mail":[""],"libelle_adresse":[""],"numero":"","mail":"","adresse":"","id_numero":[],"id_mail":[],"id_adresse":[]}
 		self.positionnerWidget()
 		
 	def statut(self,futurStatut,dictionnaire):
@@ -334,7 +334,6 @@ class WidgetContact(QGroupBox):
 		return self.__statut
 		
 	def delValueDictionnaire(self,index,key):
-		print(self.dictionnaire["libelle_"+key])
 		if ("id_"+key) in self.dictionnaire.keys():
 			if index < len(self.dictionnaire[("id_"+key)]):
 				del self.dictionnaire["id_"+key][index]
@@ -380,7 +379,6 @@ class WidgetContact(QGroupBox):
 		else:
 			self.favori.setObjectName("non")
 			self.favori.setStyleSheet("QPushButton {border-image: url(IMAGES/nonfavoris.png); }")
-			print(self.favori.objectName())
 	#	REDIMENSIONNEMENT
 	def resizeEvent(self, evt=None):
 		self.scroll.setGeometry(0,5,self.size().width(),self.size().height()-10)

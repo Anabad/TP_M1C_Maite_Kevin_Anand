@@ -16,7 +16,7 @@ import os
 
 
 def main(args) :
-	"""Fonction principale qui instancie l'annuaire"""	
+	"""Fonction principal qui va nous lancer notre annuaire"""	
 	#bdd = sqlite3.connect('Bdd/patron.db')
 	
 	app=QApplication(args)

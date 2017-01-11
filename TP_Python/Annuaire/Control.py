@@ -13,8 +13,9 @@ class Control:
 		self.model = None
 	def controlerAjouter(self,dictionnaire):
 		if dictionnaire["nom"] != "" and dictionnaire["prenom"] != "":
-			dictionnaire["nom"] = dictionnaire["nom"].upper()
-			dictionnaire["prenom"] = dictionnaire["prenom"].capitalize()
+			dictionnaire["nom"]=str(dictionnaire["nom"]).upper()
+			dictionnaire["prenom"]=dictionnaire["prenom"].capitalize()
+			print(dictionnaire)
 			self.model.ajouter_contact(dictionnaire)
 			return 0
 		else:
@@ -29,7 +30,7 @@ class Control:
 		self.model=model
 	def updateAffichageContacts(self,recherche):
 		contacts = self.model.rechercher_contact(recherche,[""])
-		contactsGroupe = self.model.rechercher_contact(recherche,["Plan cul","Ami","Travail"])
+		contactsGroupe = self.model.rechercher_contact(recherche,["Famille","Ami","Travail"])
 		self.view.updateAffichageContactBar(contacts,contactsGroupe)
 	def getContactById(self,index):
 		return self.model.getContactById(index)
